@@ -16,8 +16,10 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.12'
 
     testCompileOnly 'org.projectlombok:lombok:1.18.12'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
 
+    compile group: 'io.github.lambig', name: 'functional-interface-extension', version: '1.0.0'
+
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
     testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.6.2'
     testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.6.2'
     testCompile group: 'org.assertj', name: 'assertj-core', version: '3.16.1'
