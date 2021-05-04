@@ -45,54 +45,53 @@ artifacts {
     archives javadocJar, sourcesJar
 }
 
-signing {
-    sign configurations.archives
-}
-
 test {
     useJUnitPlatform()
     test.outputs.upToDateWhen {false}
 }
 
-
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-
-            repository(url: "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                authentication(userName: ossrhUsername, password: ossrhPassword)
-            }
-
-            snapshotRepository(url: "https://s01.oss.sonatype.org/content/repositories/snapshots/") {
-                authentication(userName: ossrhUsername, password: ossrhPassword)
-            }
-
-            pom.project {
-                name 'Tuplite'
-                packaging 'jar'
-                description 'easy tuple implementation'
-                url 'https://github.com/lambig/Tuplite'
-
-                scm {
-                    connection 'scm:git:https://github.com/lambig/Tuplite'
-                    url 'https://github.com/lambig/Tuplite'
-                }
-
-                licenses {
-                    license {
-                        name 'MIT License'
-                        url 'https://opensource.org/licenses/MIT'
-                    }
-                }
-
-                developers {
-                    developer {
-                        id 'lambig'
-                        email 'ceolnua51@gmail.com'
-                    }
-                }
-            }
-        }
-    }
-}
+//signing {
+//    sign configurations.archives
+//}
+//
+//uploadArchives {
+//    repositories {
+//        mavenDeployer {
+//            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+//
+//            repository(url: "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/") {
+//                authentication(userName: ossrhUsername, password: ossrhPassword)
+//            }
+//
+//            snapshotRepository(url: "https://s01.oss.sonatype.org/content/repositories/snapshots/") {
+//                authentication(userName: ossrhUsername, password: ossrhPassword)
+//            }
+//
+//            pom.project {
+//                name 'Tuplite'
+//                packaging 'jar'
+//                description 'easy tuple implementation'
+//                url 'https://github.com/lambig/Tuplite'
+//
+//                scm {
+//                    connection 'scm:git:https://github.com/lambig/Tuplite'
+//                    url 'https://github.com/lambig/Tuplite'
+//                }
+//
+//                licenses {
+//                    license {
+//                        name 'MIT License'
+//                        url 'https://opensource.org/licenses/MIT'
+//                    }
+//                }
+//
+//                developers {
+//                    developer {
+//                        id 'lambig'
+//                        email 'ceolnua51@gmail.com'
+//                    }
+//                }
+//            }
+//        }
+//    }
+//}
