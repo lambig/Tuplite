@@ -1,8 +1,8 @@
 package io.github.lambig.tuplite;
 
 /**
- * タプルのための基底インターフェース。 n+mタプルを作成する際にnタプルを継承しないこと。
+ * 要素数の異なるタプルを共通の型として扱うためのマーカー。
+ * 要素の取得・変換・判定はTuple2またはTuple3で行います。
  */
 public interface Tuple {
-
 }
