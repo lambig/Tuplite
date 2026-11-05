@@ -70,7 +70,7 @@ java -cp "example/target/classes:$(cat example/target/runtime-classpath.txt)" ex
 | `is(BiPredicate)`／`is(TriPredicate)` | 全要素の組合せが条件を満たすか |
 | `is(Predicate, ...)` | すべての要素が対応する条件を満たすか |
 
-`_2mapWith`／`_3mapWith`等は、タプルから結果を得る`Function`を返します。`_2testWith`／`_3testWith`等は、条件を満たすタプルを選ぶ`Predicate`を返します。`Optional.map`や`Stream.filter`へそのまま渡せます。関数化した時点では要素の変換や判定は起こらず、渡されたタプルに対して実行されます。
+`_2mapWith`／`_3mapWith`等は、タプルから結果を得る`Function`を返します。`_2testWith`／`_3testWith`等は、条件を満たすタプルを選ぶ`Predicate`を返します。`Optional.map`や`Stream.filter`へそのまま渡せます。返された関数・述語にタプルを渡すと、その要素の変換・判定結果が得られます。
 
 ```java
 Optional<Integer> subtotal = Optional.of(line)
@@ -80,27 +80,33 @@ boolean eligible = line.is(price -> price > 0, quantity -> quantity > 0);
 
 この断片は`java.util.Optional`と`Tuple2`をimportした、上の`line`がある文脈で使います。全APIを使う例は[TupleExample](example/src/main/java/example/TupleExample.java)を参照してください。
 
-## 条件の組合せ、null、同値性
+## 条件を組み合わせる
 
 | 条件 | trueの意味 | 判定の範囲 |
 | --- | --- | --- |
-| `is(Predicate, ...)`、`_2testAllWith`、`_3testAllWith` | 全条件を満たす | 第1要素から順に調べ、falseになった後の条件は判定しない |
-| `_2testAnyWith` | 二つのうち一つ以上を満たす | 両方を第1、第2の順で判定する。第1条件がtrueでも第2条件は省略されない |
-| `_3testAnyWith` | 三つのうち一つ以上を満たす | 第1要素から順に調べ、trueになった後の条件は判定しない |
+| `is(Predicate, ...)`、`_2testAllWith`、`_3testAllWith` | 全条件を満たす | 第1要素から順に調べ、最初のfalseで終了（短絡評価） |
+| `_2testAnyWith` | 二つのうち一つ以上を満たす | 第1、第2の順で両方を判定する |
+| `_3testAnyWith` | 三つのうち一つ以上を満たす | 第1要素から順に調べ、最初のtrueで終了（短絡評価） |
 
-このTuple2／Tuple3の違いは1.0.0から維持しています。副作用や例外がある述語では、最終的な真偽値以外にも違いが出ます。`_2testAnyWith`には二つの述語が必要です。判定や変換で例外が発生すると呼出元へ伝わり、後続の処理は行われません。nullの関数を呼び出そうとした場合は`NullPointerException`です。短絡により呼ばれない述語は評価されません。
+たとえば`_2testAnyWith`で価格・数量の条件を指定すると、価格の条件がtrueの場合も数量の条件を判定します。`_3testAnyWith`で価格の条件がtrueなら、その時点で全体の結果がtrueに決まります。条件内に記録や更新などの処理を含む場合も、この範囲で実行されます。
 
-要素はnullを保持でき、変換結果もnullにできます。null要素をどう扱うかは、指定する関数・述語が決めます。タプル内の参照は固定ですが、要素が可変オブジェクトならその状態は共有されます。値のコピーや深い不変性を保証する型ではありません。
+判定・変換中に例外が発生した場合は、その時点で処理を終了して例外を呼出元へ伝えます。nullの関数・述語を呼び出すと`NullPointerException`になります。
 
-`equals`／`hashCode`は`Object`のものです。同じ要素を持つ二つのタプルも、別インスタンスなら等しくありません。値で比較するキー、業務上の名前、入力の妥当性を持つデータには、専用のクラスが適しています。
+## 要素の保持と比較
+
+タプルの各位置には、作成時に指定した要素への参照を保持します。たとえばリストを要素にして、そのリストへ項目を追加すると、タプルから取得するリストにも追加が反映されます。`map1`等による変換では、変換結果と他の位置の要素を持つ新しいタプルが得られます。
+
+要素と変換結果にはnullを含められます。null要素を扱う変換・判定は、指定した関数・述語に従います。
+
+`equals`／`hashCode`は`Object`から継承し、インスタンスの同一性に基づきます。要素の値を比較したい場合は、`_1()`等で取り出した値を使って比較できます。
 
 ## 型の条件と更新
 
-関数・述語の型引数は宣言された要素型に対応します。たとえば`Tuple2<Integer, Integer>.map1`に既存の`Function<Number, String>`を直接渡すことはできません。`value -> asText.apply(value)`のように要素型に適合するラムダで利用できます。今回この型契約は変更していません。
+関数・述語の型引数にはタプルの要素型を対応させます。`Tuple2<Integer, Integer>.map1`には`Function<Integer, String>`や、`Integer`を受け取るラムダを渡せます。既存の`Function<Number, String> asText`を使う場合は、`value -> asText.apply(value)`で要素型に合わせられます。
 
-1.0.1候補では、従来のメソッド名・引数・戻り型を維持し、構築途中の型をpublicにして別packageからの`with1`等の連続呼出しを可能にします。FIE依存は1.0.0から1.1.3へ更新します。全要素コンストラクタとアクセサは、公開APIの文書に載る通常のJavaメソッドとして定義し、Lombokによる生成を不要にしています。
+1.0.1候補では、別packageから`with1(...).and2(...)`等の段階的な構築を使えます。従来のメソッド名・引数・戻り型を引き継ぎ、FIE依存は1.1.3になります。コンストラクタと各要素の取得方法もJavadocで参照できます。
 
-更新時はTupliteの版を変更し、依存ツリーでFIE 1.1.3が解決されること、同じ導入例と利用側の試験が通ることを確認します。FIEを別の版へ変更する場合も、この導入例と利用側の試験で互換性を確認してください。戻す場合はTupliteとFIEの組を戻し、別packageからの構築APIは旧版で使えない点にも注意してください。
+更新時はTupliteの版を変更し、依存ツリーでFIE 1.1.3が解決されること、同じ導入例と利用側の試験が通ることを確認します。FIEを別の版へ変更する場合も、この導入例と利用側の試験で互換性を確認してください。1.0.0へ戻す場合はTupliteとFIEの組を戻し、別packageでの構築には`tuple(...)`等の全要素を指定する操作を使ってください。
 
 APIの詳細はsources／Javadoc JAR、または`sh gradlew javadoc`で生成する`build/docs/javadoc/index.html`を参照してください。候補版のAPI文書は同じ候補buildに対応します。公開後の版付き文書は[Javadoc](https://javadoc.io/doc/io.github.lambig/Tuplite/1.0.1)でも参照できます。
 不具合や文書の疑問は[Issues](https://github.com/lambig/Tuplite/issues)へ、使用版と再現例を添えて報告してください。build・互換性検証・公開手順は[DEVELOPING.md](DEVELOPING.md)にあります。

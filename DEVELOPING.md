@@ -28,12 +28,12 @@ sh gradlew clean check centralBundle -PreleaseBundle
 ```
 
 `build/central/Tuplite-1.0.1-central.zip`に、JAR・sources・日本語Javadoc・POM・Gradle Module Metadataとそれぞれの署名・チェックサムが入ります。POMではFIE 1.1.3をcompile依存として公開します。署名が欠けるとbundle生成は失敗します。
-公開者はZip内のファイル一覧、署名、チェックサム、メタデータの参照先を確認し、[Central Portal](https://central.sonatype.com/publishing)で検証・公開します。buildタスク自体はCentralへ送信しません。
+公開者はZip内のファイル一覧、署名、チェックサム、メタデータの参照先を確認し、[Central Portal](https://central.sonatype.com/publishing)で検証・公開します。buildタスクの成果物はローカルのZipです。
 
-公開URLから取得した公開物・署名とbundleを照合した後、候補リポジトリを使わずに導入確認を実行します。
+公開URLから取得した公開物・署名とbundleを照合した後、Maven Centralを参照して導入確認を実行します。
 
 ```sh
 sh verify-consumers.sh public 1.0.1
 ```
 
-公開を確認した段階でREADMEの候補版表示を公開済みの状態へ更新します。利用側の更新・回帰は公開確認後に進めます。ローカルでの候補成功だけで公開済みとは扱いません。
+公開URLでの取得と導入確認が成功したら、READMEの候補版表示を公開済みへ更新し、利用側の更新・回帰を進めます。
