@@ -100,6 +100,8 @@ boolean eligible = line.is(price -> price > 0, quantity -> quantity > 0);
 
 `equals`／`hashCode`は`Object`から継承し、インスタンスの同一性に基づきます。要素の値を比較したい場合は、`_1()`等で取り出した値を使って比較できます。
 
+同じ要素を持つ別々のタプルを`HashSet`へ追加すると、それぞれが保持されます。要素の値による重複排除や`Map`のキー検索には、値に基づく`equals`／`hashCode`を持つキーを使用してください。
+
 ## 型の条件と更新
 
 関数・述語の型引数にはタプルの要素型を対応させます。`Tuple2<Integer, Integer>.map1`には`Function<Integer, String>`や、`Integer`を受け取るラムダを渡せます。既存の`Function<Number, String> asText`を使う場合は、`value -> asText.apply(value)`で要素型に合わせられます。
