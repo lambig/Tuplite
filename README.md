@@ -3,7 +3,7 @@
 
 型の異なる二つ・三つの値を一組にし、その組合せから結果を求めたり、要素を変換・判定したりするJavaライブラリです。価格と数量を組にして金額を求め、数量だけを表示用の文字列へ変換できます。
 
-このブランチは **1.0.1候補版** です。以下の依存宣言は公開完了後にMaven Centralから使えます。公開前は[開発手順](DEVELOPING.md)の候補リポジトリと、同じ[実行例](example/src/main/java/example/TupleExample.java)で確認してください。
+**1.0.1** はMaven Centralから利用できます。以下の依存宣言と[実行例](example/src/main/java/example/TupleExample.java)で、導入から結果の確認まで進められます。
 
 ## 導入
 
@@ -106,9 +106,9 @@ boolean eligible = line.is(price -> price > 0, quantity -> quantity > 0);
 
 関数・述語の型引数にはタプルの要素型を対応させます。`Tuple2<Integer, Integer>.map1`には`Function<Integer, String>`や、`Integer`を受け取るラムダを渡せます。既存の`Function<Number, String> asText`を使う場合は、`value -> asText.apply(value)`で要素型に合わせられます。
 
-1.0.1候補では、別packageから`with1(...).and2(...)`等の段階的な構築を使えます。従来のメソッド名・引数・戻り型を引き継ぎ、FIE依存は1.1.3になります。コンストラクタと各要素の取得方法もJavadocで参照できます。
+1.0.1では、別packageから`with1(...).and2(...)`等の段階的な構築を使えます。従来のメソッド名・引数・戻り型を引き継ぎ、FIE依存は1.1.3になります。コンストラクタと各要素の取得方法もJavadocで参照できます。
 
 更新時はTupliteの版を変更し、依存ツリーでFIE 1.1.3が解決されること、同じ導入例と利用側の試験が通ることを確認します。FIEを別の版へ変更する場合も、この導入例と利用側の試験で互換性を確認してください。1.0.0へ戻す場合はTupliteとFIEの組を戻し、別packageでの構築には`tuple(...)`等の全要素を指定する操作を使ってください。
 
-APIの詳細はsources／Javadoc JAR、または`sh gradlew javadoc`で生成する`build/docs/javadoc/index.html`を参照してください。候補版のAPI文書は同じ候補buildに対応します。公開後の版付き文書は[Javadoc](https://javadoc.io/doc/io.github.lambig/Tuplite/1.0.1)でも参照できます。
+APIの詳細は[1.0.1のJavadoc JAR](https://repo.maven.apache.org/maven2/io/github/lambig/Tuplite/1.0.1/Tuplite-1.0.1-javadoc.jar)を取得・展開し、`index.html`を開いて参照できます。ソースから生成する場合は、`sh gradlew javadoc`で生成する`build/docs/javadoc/index.html`を参照してください。
 不具合や文書の疑問は[Issues](https://github.com/lambig/Tuplite/issues)へ、使用版と再現例を添えて報告してください。build・互換性検証・公開手順は[DEVELOPING.md](DEVELOPING.md)にあります。
