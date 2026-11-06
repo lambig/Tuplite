@@ -30,3 +30,6 @@ build/
 
 # gradle settings #
 .gradle/
+# Maven example output and local credentials
+example/target/
+gradle.properties

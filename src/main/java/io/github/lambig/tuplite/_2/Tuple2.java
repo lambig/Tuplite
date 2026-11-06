@@ -1,98 +1,191 @@
 package io.github.lambig.tuplite._2;
 
-
 import static io.github.lambig.funcifextension.proposition.Proposition.and;
 import static io.github.lambig.funcifextension.proposition.Proposition.subject;
-
 
 import io.github.lambig.tuplite.Tuple;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.experimental.Accessors;
-
 
 /**
- * 2-Tuple
+ * 2個の値を位置と型の対応を保って扱うタプル。
  *
- * @param <A> 第1要素
- * @param <B> 第2要素
+ * <p>価格と数量を一組にし、{@code map((price, quantity) -> price * quantity)}で金額を求められます。
+ * 各要素を変換する操作では、変換結果を持つ新しいタプルが得られます。
+ *
+ * <p>各位置には指定した要素への参照を保持します。要素の状態の変更は、タプルからも読み取れます。
+ * {@code equals}と{@code hashCode}は{@link Object}のインスタンスの同一性に基づきます。
+ *
+ * <p>要素と変換結果はnullを含められます。null要素の変換・判定結果は指定した関数・述語によって決まり、
+ * そこで発生した例外は呼出元へ伝わります。
+ *
+ * @param <A> 第1要素の型
+ * @param <B> 第2要素の型
  */
-@AllArgsConstructor(access = AccessLevel.PUBLIC)
-@Getter
-@Accessors(fluent = true)
 public class Tuple2<A, B> implements Tuple {
 
   private final A _1;
   private final B _2;
 
+  /**
+   * 2個の値を、その位置の要素として保持するタプルを作ります。
+   *
+   * @param _1 第1要素。nullも保持可能
+   * @param _2 第2要素。nullも保持可能
+   */
+  public Tuple2(A _1, B _2) {
+    this._1 = _1;
+    this._2 = _2;
+  }
+
+  /**
+   * 第1要素を返します。
+   *
+   * @return 作成時に指定した第1要素
+   */
+  public A _1() {
+    return this._1;
+  }
+
+  /**
+   * 第2要素を返します。
+   *
+   * @return 作成時に指定した第2要素
+   */
+  public B _2() {
+    return this._2;
+  }
+
+  /**
+   * タプルの全要素から一つの結果を得る関数を返します。
+   *
+   * @param <S> 入力タプルの第1要素の型
+   * @param <T> 入力タプルの第2要素の型
+   * @param <U> 全要素をまとめた変換結果の型
+   * @param biFunction 全要素の組合せを一つの結果にする関数
+   * @return 全要素を一つの値に変換する関数
+   */
   public static <S, T, U> Function<Tuple2<S, T>, U> _2mapWith(BiFunction<S, T, U> biFunction) {
     return tuple2 -> tuple2.map(biFunction);
   }
 
+  /**
+   * 各要素を変換したタプルを得る関数を返します。
+   *
+   * @param <S> 入力タプルの第1要素の型
+   * @param <T> 入力タプルの第2要素の型
+   * @param <U> 第1要素の変換後の型
+   * @param <V> 第2要素の変換後の型
+   * @param _1Function 第1要素を変換する関数
+   * @param _2Function 第2要素を変換する関数
+   * @return 各要素の変換結果を持つ新しいタプルを返す関数
+   */
   public static <S, T, U, V> Function<Tuple2<S, T>, Tuple2<U, V>> _2mapWith(Function<S, U> _1Function, Function<T, V> _2Function) {
     return tuple2 -> tuple2.map(_1Function, _2Function);
   }
 
+  /**
+   * 第1要素だけを変換したタプルを得る関数を返します。
+   *
+   * @param <S> 入力タプルの第1要素の型
+   * @param <T> 入力タプルの第2要素の型
+   * @param <U> 第1要素の変換後の型
+   * @param function 第1要素を変換する関数
+   * @return 他の要素を保持した新しいタプルを返す関数
+   */
   public static <S, T, U> Function<Tuple2<S, T>, Tuple2<U, T>> _2map1With(Function<S, U> function) {
     return tuple2 -> tuple2.map1(function);
   }
 
+  /**
+   * 第2要素だけを変換したタプルを得る関数を返します。
+   *
+   * @param <S> 入力タプルの第1要素の型
+   * @param <T> 入力タプルの第2要素の型
+   * @param <U> 第2要素の変換後の型
+   * @param function 第2要素を変換する関数
+   * @return 他の要素を保持した新しいタプルを返す関数
+   */
   public static <S, T, U> Function<Tuple2<S, T>, Tuple2<S, U>> _2map2With(Function<T, U> function) {
     return tuple2 -> tuple2.map2(function);
   }
 
+  /**
+   * 全要素の組合せが指定条件を満たすかを表す述語を返します。
+   *
+   * @param <S> 入力タプルの第1要素の型
+   * @param <T> 入力タプルの第2要素の型
+   * @param biPredicate 全要素の組合せに対する条件
+   * @return 指定条件を満たすタプルに対してtrueとなる述語
+   */
   public static <S, T> Predicate<Tuple2<S, T>> _2testWith(BiPredicate<S, T> biPredicate) {
     return tuple2 -> tuple2.is(biPredicate);
   }
 
+  /**
+   * いずれかの要素が対応する条件を満たすかを表す述語を返します。
+   *
+   * <p>第1、第2要素の順に両方の条件を判定します。第1条件がtrueの場合も第2条件を判定します。
+   *
+   * @param <S> 入力タプルの第1要素の型
+   * @param <T> 入力タプルの第2要素の型
+   * @param _1Predicate 第1要素に対する条件
+   * @param _2Predicate 第2要素に対する条件
+   * @return 一つ以上の条件が成立すればtrueとなる述語
+   */
   public static <S, T> Predicate<Tuple2<S, T>> _2testAnyWith(Predicate<S> _1Predicate, Predicate<T> _2Predicate) {
     return tuple2 -> tuple2.map(_1Predicate::test, _2Predicate::test).map((a, b) -> a || b);
   }
 
+  /**
+   * すべての要素が対応する条件を満たすかを表す述語を返します。
+   *
+   * <p>第1要素から順に判定し、最初のfalseで判定を終える短絡評価です。
+   *
+   * @param <S> 入力タプルの第1要素の型
+   * @param <T> 入力タプルの第2要素の型
+   * @param _1Predicate 第1要素に対する条件
+   * @param _2Predicate 第2要素に対する条件
+   * @return すべての条件が成立すればtrueとなる述語
+   */
   public static <S, T> Predicate<Tuple2<S, T>> _2testAllWith(Predicate<S> _1Predicate, Predicate<T> _2Predicate) {
     return tuple2 -> tuple2.is(_1Predicate, _2Predicate);
   }
 
   /**
-   * 2要素から新しい2-Tupleを返す。
+   * 指定した2個の値を位置どおりに保持するタプルを返します。
    *
-   * @param _1  要素1
-   * @param _2  要素2
-   * @param <A> 要素1型
-   * @param <B> 要素2型
-   * @return 新しい2-Tuple
+   * @param <A> 第1要素の型
+   * @param <B> 第2要素の型
+   * @param _1 第1要素。nullも保持可能
+   * @param _2 第2要素。nullも保持可能
+   * @return 指定した要素を持つ新しいタプル
    */
   public static <A, B> Tuple2<A, B> tuple(A _1, B _2) {
     return new Tuple2<>(_1, _2);
   }
 
   /**
-   * 2要素から新しい2-Tupleを返す。
+   * 指定した2個の値を位置どおりに保持するタプルを返します。
    *
-   * @param _1  要素1
-   * @param _2  要素2
-   * @param <A> 要素1型
-   * @param <B> 要素2型
-   * @return 新しい2-Tuple
+   * @param <A> 第1要素の型
+   * @param <B> 第2要素の型
+   * @param _1 第1要素。nullも保持可能
+   * @param _2 第2要素。nullも保持可能
+   * @return 指定した要素を持つ新しいタプル
    */
   public static <A, B> Tuple2<A, B> tuple2(A _1, B _2) {
     return tuple(_1, _2);
   }
 
-
   /**
-   * コンストラクタの_1部分適用。
+   * 第1要素を決め、残りの要素を指定してタプルを作るための入口を返します。
    *
-   * <p>2-Tupleのコンストラクタ1部分適用を取得する
-   *
-   * @param _1  要素1
-   * @param <X> 要素1型
-   * @return 2-Tupleのビルダ
+   * @param <X> 第1要素の型
+   * @param _1 第1要素。nullも保持可能
+   * @return 第1要素を保持する構築用のオブジェクト
    */
   public static <X> Tuple2_1to2<X> with1(X _1) {
     return new Tuple2_1to2<X>() {
@@ -104,55 +197,72 @@ public class Tuple2<A, B> implements Tuple {
   }
 
   /**
-   * 2-Tupleをオブジェクトに変換する。
+   * 全要素を一組として変換した結果を返します。
    *
-   * @param biFunction マッピング
-   * @param <C>        出力型
-   * @return 変換済みオブジェクト
+   * @param <C> 全要素をまとめた変換結果の型
+   * @param biFunction 全要素の組合せを一つの結果にする関数
+   * @return 関数の結果。nullを含む
    */
   public <C> C map(BiFunction<A, B, C> biFunction) {
     return biFunction.apply(this._1, this._2);
   }
 
   /**
-   * 要素1,2のマッピングを受け取り、それらを適用した新しい2-Tupleを返す。
+   * 各要素を変換した値を持つ新しいタプルを返します。
    *
-   * @param _1Function 要素1マッピング
-   * @param _2Function 要素2マッピング
-   * @param <F>        要素1出力型
-   * @param <S>        要素2出力側
-   * @return 新しい2-Tuple
+   * <p>第1要素から順に変換します。例外が発生した時点で処理を終了し、その例外を呼出元へ伝えます。
+   *
+   * @param <F> 第1要素の変換後の型
+   * @param <S> 第2要素の変換後の型
+   * @param _1Function 第1要素を変換する関数
+   * @param _2Function 第2要素を変換する関数
+   * @return 対応する変換結果を持つ新しいタプル
    */
   public <F, S> Tuple2<F, S> map(Function<A, F> _1Function, Function<B, S> _2Function) {
     return tuple(_1Function.apply(this._1), _2Function.apply(this._2));
   }
 
   /**
-   * 要素1のマッピングを受け取り、要素2はそのままに新しい2-Tupleを返す。
+   * 第1要素を変換し、他の要素を保持した新しいタプルを返します。
    *
-   * @param function 要素1マッピング
-   * @param <N>      要素1出力型
-   * @return 要素2と、要素1にマッピングを適用した新要素1を持つ新しい2-Tuple
+   * @param <N> 第1要素の変換後の型
+   * @param function 第1要素を変換する関数
+   * @return 指定位置だけが変換された新しいタプル
    */
   public <N> Tuple2<N, B> map1(Function<A, N> function) {
     return tuple(function.apply(this._1), this._2);
   }
 
   /**
-   * 要素2のマッピングを受け取り、要素1はそのままに新しい2-Tupleを返す。
+   * 第2要素を変換し、他の要素を保持した新しいタプルを返します。
    *
-   * @param function 要素2マッピング
-   * @param <N>      要素2出力型
-   * @return 要素1と要素2マッピングを適用した新要素2を持つ新しい2-Tuple
+   * @param <N> 第2要素の変換後の型
+   * @param function 第2要素を変換する関数
+   * @return 指定位置だけが変換された新しいタプル
    */
   public <N> Tuple2<A, N> map2(Function<B, N> function) {
     return tuple(this._1, function.apply(this._2));
   }
 
+  /**
+   * 全要素の組合せが指定条件を満たすかを返します。
+   *
+   * @param biPredicate 全要素の組合せに対する条件
+   * @return 指定した条件が成立すればtrue
+   */
   public boolean is(BiPredicate<A, B> biPredicate) {
     return biPredicate.test(this._1, this._2);
   }
 
+  /**
+   * すべての要素が対応する条件を満たすかを返します。
+   *
+   * <p>第1要素から順に判定し、最初のfalseで判定を終える短絡評価です。
+   *
+   * @param _1Predicate 第1要素に対する条件
+   * @param _2Predicate 第2要素に対する条件
+   * @return すべての条件が成立すればtrue
+   */
   public boolean is(Predicate<A> _1Predicate, Predicate<B> _2Predicate) {
     return
         and(
@@ -161,7 +271,18 @@ public class Tuple2<A, B> implements Tuple {
             .test();
   }
 
-  interface Tuple2_1to2<A> {
+  /**
+   * 第1要素を共有し、第2要素の異なるタプルを作れる構築用インターフェース。
+   *
+   * @param <A> 第1要素の型
+   */
+  public interface Tuple2_1to2<A> {
+    /**
+     * 保持した第1要素と指定した第2要素のタプルを返します。
+     * @param <B> 第2要素の型
+     * @param _2 第2要素。nullも保持可能
+     * @return 新しいタプル
+     */
     <B> Tuple2<A, B> and2(B _2);
   }
 }
